@@ -1,6 +1,8 @@
 
 
-const validateInput = async (maxInputSize, start, input) => {
+const parseInput = async (maxInputSize, start, input) => {
+    const ask = `Please say at most ${maxInputSize} successive numbers starting with ${start}.`;
+
     if (maxInputSize < 0) {
         throw `Invalid maxInputSize: ${maxInputSize}`;
     }
@@ -10,18 +12,24 @@ const validateInput = async (maxInputSize, start, input) => {
     if (!input || input.length === 0) {
         throw `Invalid input: ${input}`;
     }
-    if (input.length > maxInputSize) {
-        throw `You said ${input.length} numbers. Please say at most ${maxInputSize} numbers.`;
-    }
-    for (let i = 0; i < input.length - 1; i++) {
-        if (input[i + 1] - input[i] !== 1) {
-            throw `${input[i + 1]} is not successive. Please say at most ${maxInputSize} successive numbers starting with ${start}.`;
+
+    let i = 0, rest = input, parsed = [];
+    while (rest.length > 0) {
+        let expected = '' + (start + i);
+        let actual = rest.substr(0, expected.length);
+        if (actual !== expected) {
+            throw `You said invalid number ${actual}. ` + ask;
         }
+        rest = rest.substr(actual.length);
+        i += 1;
+        parsed.push(parseInt(actual, 10));
     }
-    if (input[0] !== start) {
-        throw `You said numbers starting with ${input[0]}. Please say at most ${maxInputSize} successive numbers starting with ${start}.`;
+
+    if (parsed.length > maxInputSize) {
+        throw `You said ${input.length} numbers. ` + ask;
     }
-    return input;
+
+    return parsed;
 };
 
-exports.validateInput = validateInput;
+exports.parseInput = parseInput;
