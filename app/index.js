@@ -11,17 +11,15 @@ const validateInput = async (maxInputSize, start, input) => {
         throw `Invalid input: ${input}`;
     }
     if (input.length > maxInputSize) {
-        throw `${maxInputSize}つ以下で答えてください。`;
+        throw `You said ${input.length} numbers. Please say at most ${maxInputSize} numbers.`;
     }
     for (let i = 0; i < input.length - 1; i++) {
         if (input[i + 1] - input[i] !== 1) {
-            throw `${start} からはじまる ${maxInputSize} つ以下の連続した数を答えてください。`;
+            throw `${input[i + 1]} is not successive. Please say at most ${maxInputSize} successive numbers starting with ${start}.`;
         }
     }
-    for (let i = 0; i < input.length; i++) {
-        if (input[i] !== start + i) {
-            throw `${start} からはじまる ${maxInputSize} つ以下の連続した数を答えてください。`;
-        }
+    if (input[0] !== start) {
+        throw `You said numbers starting with ${input[0]}. Please say at most ${maxInputSize} successive numbers starting with ${start}.`;
     }
     return input;
 };
