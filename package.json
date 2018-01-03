@@ -1,0 +1,25 @@
+{
+  "name": "google-home-number-counting",
+  "version": "1.0.0",
+  "description": "A number counting game.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/takatama/google-home-number-counting.git"
+  },
+  "keywords": [
+    "google-home"
+  ],
+  "author": "Hirokazu Takatama",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/takatama/google-home-number-counting/issues"
+  },
+  "homepage": "https://github.com/takatama/google-home-number-counting#readme",
+  "devDependencies": {
+    "mocha": "^4.1.0"
+  }
+}
