@@ -56,9 +56,9 @@ describe('#isLose()', () => {
 });
 
 describe('#getMyAnswer()', () => {
-    it('should say the goal 21 when starting number is 20.', () => {
-        return numberCounting.getMyAnswer(21, 3, 21).then((answer) => {
-            assert.equal(answer, 21);
+    it('should reject when the start number is same as the goal.', () => {
+        return numberCounting.getMyAnswer(21, 3, 21).catch((answer) => {
+            assert.deepEqual(answer, [21]);
         });
     });
 

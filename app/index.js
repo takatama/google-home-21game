@@ -57,7 +57,7 @@ const getRandomInt = (min, max) => {
 
 const getMyAnswer = async (goal, maxInputSize, start) => {
     if (start === goal) {
-        return [goal]; // lose
+        throw [goal]; // lose
     }
     let len;
     if (goal - start <=  maxInputSize) {
@@ -71,6 +71,30 @@ const getMyAnswer = async (goal, maxInputSize, start) => {
     }
     return result;
 };
+
+// const play = (app, turnIndex, goal, maxInputSize, start, input) => {
+//     try {
+//         const parsed = await parseInput(maxInputSize, start, input);
+//         if (isLose(goal, parsed)) {
+//             app.tell(`${turns[turnIndex]} lose.`);
+//         } else if (isMyTurn(turnIndex)) {
+//             const answer = getMyAnswer(goal, maxInputSize, parsed[parsed.length - 1]);
+//             if (isLose(goal, answer)) {
+//                 app.tell(answer.join(', ') + '. I lose.');
+//             }
+//             const params = {
+//                 turnIndex: turnIndex + 1 % turns.length,
+//                 goal: goal, maxInputSize: maxInputSize,
+//                 start: answer[answer.length - 1]
+//             };
+//             app.ask(answer.join(', ') + '.');
+//         } else {
+//             app.ask();
+//         }
+//     } catch (e) {
+//         app.ask(e);
+//     }
+// };
 
 exports.parseInput = parseInput;
 exports.isLose = isLose;
