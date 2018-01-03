@@ -48,12 +48,9 @@ const getRandomInt = (min, max) => {
 
 const getMyAnswer = (goal, maxInputSize, start) => {
     return new Promise((resolve, reject) => {
-        if (start === goal) {
-            return reject([goal]); // win
-        }
         let len;
-        if (goal - start <=  maxInputSize) {
-            len = goal - start;
+        if (goal - start < maxInputSize) {
+            len = goal - start + 1;
         } else {
             len = getRandomInt(1, maxInputSize);
         }
@@ -110,8 +107,6 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                 save(app, goal, maxInputSize, newStart);
                 ask(app, goal, maxInputSize, newStart, speech, isFirst);
             }
-        }).catch((ans) => {
-            app.tell('I got ' + ans.join(', ') + '. You lose.');
         });        
     };
 
@@ -127,7 +122,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             speech += 'My turn. ';
             answer(app, goal, maxInputSize, start, speech, true);
         } else {
-            speech += `Your turn.`;
+            speech += `Your turn. `;
             ask(app, goal, maxInputSize, start, speech, true);
         }
     };

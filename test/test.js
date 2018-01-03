@@ -56,27 +56,21 @@ describe('#isWin()', () => {
 });
 
 describe('#getMyAnswer()', () => {
-    it('should reject when the start number is same as the goal.', () => {
-        return numberCounting.getMyAnswer(21, 3, 21).catch((answer) => {
+    it('should say the goal when the start number is same as the goal.', () => {
+        return numberCounting.getMyAnswer(21, 3, 21).then((answer) => {
             assert.deepEqual(answer, [21]);
         });
     });
 
-    it('should not say the goal when start number equals goal minus 1.', () => {
+    it('should say the goal when start number equals goal minus 1.', () => {
         return numberCounting.getMyAnswer(21, 3, 20).then((answer) => {
-            assert.deepEqual(answer, [20]);
+            assert.deepEqual(answer, [20, 21]);
         });
     });
 
-    it('should not say the goal when start number equals goal minus 2.', () => {
+    it('should say the goal when start number equals goal minus 2.', () => {
         return numberCounting.getMyAnswer(21, 3, 19).then((answer) => {
-            assert.deepEqual(answer, [19, 20]);
-        });
-    });
-
-    it('should not say the goal when start number equals goal minus 3.', () => {
-        return numberCounting.getMyAnswer(21, 3, 18).then((answer) => {
-            assert.deepEqual(answer, [18, 19, 20]);
+            assert.deepEqual(answer, [19, 20, 21]);
         });
     });
 
