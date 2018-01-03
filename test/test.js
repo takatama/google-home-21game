@@ -45,13 +45,13 @@ describe('#parseInput()', () => {
     });
 });
 
-describe('#isLose()', () => {
-    it('should not lose when the input has not the goal number.', () => {
-        assert.equal(numberCounting.isLose(21, [1, 2, 3]), false);
+describe('#isWin()', () => {
+    it('should not win when the input has not the goal number.', () => {
+        assert.equal(numberCounting.isWin(21, [1, 2, 3]), false);
     });
 
-    it('should lose when the input has the goal number.', () => {
-        assert.equal(numberCounting.isLose(21, [20, 21]), true);
+    it('should win when the input has the goal number.', () => {
+        assert.equal(numberCounting.isWin(21, [20, 21]), true);
     });
 });
 

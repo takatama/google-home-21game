@@ -33,7 +33,7 @@ const parseInput = (maxInputSize, start, input) => {
     });
 };
 
-const isLose = (goal, arr) => {
+const isWin = (goal, arr) => {
     for (let a of arr) {
         if (a === goal) {
             return true;
@@ -59,7 +59,7 @@ const getRandomInt = (min, max) => {
 const getMyAnswer = (goal, maxInputSize, start) => {
     return new Promise((resolve, reject) => {
         if (start === goal) {
-            return reject([goal]); // lose
+            return reject([goal]); // win
         }
         let len;
         if (goal - start <=  maxInputSize) {
@@ -76,7 +76,7 @@ const getMyAnswer = (goal, maxInputSize, start) => {
 };
 
 exports.parseInput = parseInput;
-exports.isLose = isLose;
+exports.isWin = isWin;
 exports.getMyAnswer = getMyAnswer;
 
 //process.env.DEBUG = 'actions-on-google:*';
@@ -103,26 +103,43 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         return app.getContext(COUNTING_CONTEXT).parameters;
     };
 
+    const ask = (app, turnIndex, goal, maxInputSize, start, speech, isFirst) => {
+        if (isFirst) {
+            speech += `Please say at most ${maxInputSize} successive numbers starting with ${start}. `;            
+        }
+        save(app, turnIndex, goal, maxInputSize, start);
+        app.ask(speech);
+    };
+
+    const answer = (app, turnIndex, goal, maxInputSize, start, speech, isFirst) => {
+        getMyAnswer(goal, maxInputSize, start).then((ans) => {
+            speech += 'I got ' + ans.join(', ') + '. ';
+            if (isWin(goal, ans)) {
+                app.tell(speech + 'You lose.');
+            } else {
+                let newStart = ans[ans.length - 1] + 1;
+                save(app, turnIndex, goal, maxInputSize, newStart);
+                ask(app, turnIndex, goal, maxInputSize, newStart, speech, isFirst);
+            }
+        }).catch((ans) => {
+            app.tell('I got ' + ans.join(', ') + '. You lose.');
+        });        
+    };
+
     // Fulfill action business logic
     const welcomeHandler = (app) => {
         const turnIndex = getRandomInt(0, 1);
         const goal = 21;
         const maxInputSize = 3;
-        const start = 1;
-
+        let start = 1;
+        let speech = `The object of this game is to be the first one to say ${goal}. `;
+        
         if (isMyTurn(turnIndex)) {
-            let speech = 'My turn. ';
-            getMyAnswer(goal, maxInputSize, start).then((answer) => {
-                speech += 'I got ' + answer.join(', ') + '. ';
-                const newStart = answer[answer.length - 1] + 1;
-                speech += `Please say at most ${maxInputSize} successive numbers starting with ${newStart}. `;
-                save(app, turnIndex, goal, maxInputSize, newStart);
-                app.ask(speech);
-            });
+            speech += 'My turn. ';
+            answer(app, turnIndex, goal, maxInputSize, start, speech, true);
         } else {
-            let speech = `Your turn. Please say at most ${maxInputSize} successive numbers starting with ${start}. `;
-            save(app, turnIndex, goal, maxInputSize, start);
-            app.ask(speech);
+            speech += `Your turn.`;
+            ask(app, turnIndex, goal, maxInputSize, start, speech, true);
         }
     };
 
@@ -131,19 +148,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         if (!isMyTurn(p.turnIndex)) {
             parseInput(p.maxInputSize, p.start, p.numbers).then((parsed) => {
                 let newStart = parsed[parsed.length - 1] + 1;
-                if (isLose(p.goal, parsed)) {
-                    app.tell('You lose.');
+                if (isWin(p.goal, parsed)) {
+                    app.tell('You win.');
                 } else {
-                    let speech = 'My turn. ';
-                    getMyAnswer(p.goal, p.maxInputSize, newStart).then((answer) => {
-                        speech += 'I got ' + answer.join(', ') + '. ';
-                        if (isLose(p.goal, answer)) {
-                            app.tell('You win');
-                        } else {
-                            save(app, p.turnIndex, p.goal, p.maxInputSize, answer[answer.length - 1] + 1);
-                            app.ask(speech);                        
-                        }
-                    });
+                    answer(app, p.turnIndex, p.goal, p.maxInputSize, newStart, '', false);
                 }
             }).catch((error) => {
                 app.ask(error);
