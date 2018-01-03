@@ -32,4 +32,14 @@ const parseInput = async (maxInputSize, start, input) => {
     return parsed;
 };
 
+const isLose = (goal, arr) => {
+    for (let a of arr) {
+        if (a === goal) {
+            return true;
+        }
+    }
+    return false;
+}
+
 exports.parseInput = parseInput;
+exports.isLose = isLose;
