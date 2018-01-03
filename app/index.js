@@ -42,16 +42,6 @@ const isWin = (goal, arr) => {
     return false;
 };
 
-const turns = ['I', 'You'];
-
-const isMyTurn = (turnIndex) => {
-    return turnIndex === 0;
-};
-
-const nextTurnIndex = (turnIndex) => {
-    return (turnIndex + 1) % turns.length;
-}
-
 const getRandomInt = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
@@ -89,9 +79,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     console.log('Request body: ' + JSON.stringify(request.body));
     const COUNTING_CONTEXT = 'counting';
 
-    const save = (app, turnIndex, goal, maxInputSize, start) => {
+    const save = (app, goal, maxInputSize, start) => {
         const params = {
-            turnIndex: turnIndex + 1 % turns.length,
             goal: goal,
             maxInputSize: maxInputSize,
             start: start
@@ -103,23 +92,23 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         return app.getContext(COUNTING_CONTEXT).parameters;
     };
 
-    const ask = (app, turnIndex, goal, maxInputSize, start, speech, isFirst) => {
+    const ask = (app, goal, maxInputSize, start, speech, isFirst) => {
         if (isFirst) {
             speech += `Please say at most ${maxInputSize} successive numbers starting with ${start}. `;            
         }
-        save(app, turnIndex, goal, maxInputSize, start);
+        save(app, goal, maxInputSize, start);
         app.ask(speech);
     };
 
-    const answer = (app, turnIndex, goal, maxInputSize, start, speech, isFirst) => {
+    const answer = (app, goal, maxInputSize, start, speech, isFirst) => {
         getMyAnswer(goal, maxInputSize, start).then((ans) => {
             speech += 'I got ' + ans.join(', ') + '. ';
             if (isWin(goal, ans)) {
                 app.tell(speech + 'You lose.');
             } else {
                 let newStart = ans[ans.length - 1] + 1;
-                save(app, turnIndex, goal, maxInputSize, newStart);
-                ask(app, turnIndex, goal, maxInputSize, newStart, speech, isFirst);
+                save(app, goal, maxInputSize, newStart);
+                ask(app, goal, maxInputSize, newStart, speech, isFirst);
             }
         }).catch((ans) => {
             app.tell('I got ' + ans.join(', ') + '. You lose.');
@@ -134,31 +123,27 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         let start = 1;
         let speech = `The object of this game is to be the first one to say ${goal}. `;
         
-        if (isMyTurn(turnIndex)) {
+        if (turnIndex === 0) {
             speech += 'My turn. ';
-            answer(app, turnIndex, goal, maxInputSize, start, speech, true);
+            answer(app, goal, maxInputSize, start, speech, true);
         } else {
             speech += `Your turn.`;
-            ask(app, turnIndex, goal, maxInputSize, start, speech, true);
+            ask(app, goal, maxInputSize, start, speech, true);
         }
     };
 
     const numbersHandler = (app) => {
         const p = load(app);
-        if (!isMyTurn(p.turnIndex)) {
-            parseInput(p.maxInputSize, p.start, p.numbers).then((parsed) => {
-                let newStart = parsed[parsed.length - 1] + 1;
-                if (isWin(p.goal, parsed)) {
-                    app.tell('You win.');
-                } else {
-                    answer(app, p.turnIndex, p.goal, p.maxInputSize, newStart, '', false);
-                }
-            }).catch((error) => {
-                app.ask(error);
-            });
-        } else {
-            app.tell('error. invalid turn.');
-        }
+        parseInput(p.maxInputSize, p.start, p.numbers).then((input) => {
+            let newStart = input[input.length - 1] + 1;
+            if (isWin(p.goal, input)) {
+                app.tell('You win.');
+            } else {
+                answer(app, p.goal, p.maxInputSize, newStart, '', false);
+            }
+        }).catch((error) => {
+            app.ask(error);
+        });
     };
 
     const actionMap = new Map();
