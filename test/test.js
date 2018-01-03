@@ -46,11 +46,44 @@ describe('#parseInput()', () => {
 });
 
 describe('#isLose()', () => {
-    it ('should not lose when the input has not the goal number.', () => {
+    it('should not lose when the input has not the goal number.', () => {
         assert.equal(numberCounting.isLose(21, [1, 2, 3]), false);
     });
 
-    it ('should lose when the input has the goal number.', () => {
+    it('should lose when the input has the goal number.', () => {
         assert.equal(numberCounting.isLose(21, [20, 21]), true);
+    });
+});
+
+describe('#getMyAnswer()', () => {
+    it('should say the goal 21 when starting number is 20.', () => {
+        return numberCounting.getMyAnswer(21, 3, 21).then((answer) => {
+            assert.equal(answer, 21);
+        });
+    });
+
+    it('should not say the goal when start number equals goal minus 1.', () => {
+        return numberCounting.getMyAnswer(21, 3, 20).then((answer) => {
+            assert.deepEqual(answer, [20]);
+        });
+    });
+
+    it('should not say the goal when start number equals goal minus 2.', () => {
+        return numberCounting.getMyAnswer(21, 3, 19).then((answer) => {
+            assert.deepEqual(answer, [19, 20]);
+        });
+    });
+
+    it('should not say the goal when start number equals goal minus 3.', () => {
+        return numberCounting.getMyAnswer(21, 3, 18).then((answer) => {
+            assert.deepEqual(answer, [18, 19, 20]);
+        });
+    });
+
+    it('should say at most 3 numbers.', () => {
+        return numberCounting.getMyAnswer(21, 3, 18).then((answer) => {
+            let len = answer.length;
+            assert.equal(0 < len && len < 4, true);
+        });        
     });
 });

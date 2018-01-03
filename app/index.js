@@ -39,7 +39,39 @@ const isLose = (goal, arr) => {
         }
     }
     return false;
+};
+
+const turns = ['I', 'You'];
+
+const isMyTurn = (turnIndex) => {
+    return turnIndex === 0;
+};
+
+const nextTurnIndex = (turnIndex) => {
+    return (turnIndex + 1) % turn.length;
 }
+
+const getRandomInt = (min, max) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+const getMyAnswer = async (goal, maxInputSize, start) => {
+    if (start === goal) {
+        return [goal]; // lose
+    }
+    let len;
+    if (goal - start <=  maxInputSize) {
+        len = goal - start;
+    } else {
+        len = getRandomInt(1, maxInputSize);
+    }
+    let result = [];
+    for (let i = 0; i < len; i++) {
+        result.push(start + i);
+    }
+    return result;
+};
 
 exports.parseInput = parseInput;
 exports.isLose = isLose;
+exports.getMyAnswer = getMyAnswer;
